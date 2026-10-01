@@ -9,6 +9,8 @@ from tkinter import filedialog, messagebox
 import torch
 import whisper
 from check import check_ffmpeg, check_gpu, check_input
+from model_factory import create_model
+
 
 def file_dialog():
     """Apre una finestra di dialogo per permettere all'utente di selezionare un file audio."""
@@ -62,18 +64,20 @@ def main():
 
     try:
         # Carica il modello Whisper
-        print("Scegliere il modello da utilizzare (può richiedere da qualche secondo a diversi minuti a seconda del modello scelto)...")
-        count = 0
-        while count < 3:  # Limita a 3 tentativi per inserire un modello valido
-            model_name = input(f"Scegli tra {options}: ").strip().lower()
-            if model_name not in options:
-                count += 1
-                print(f"Modello non valido. Tentativo {count}/3.")
-            else:
-                model = whisper.load_model(model_name)
-                break
-            
+        print("Scegliere il modello da utilizzare (può richiedere da qualche secondo a diversi minuti)...")
+        
+        for attempt in range(3):
+            model_name = input(f"Scegli tra {options}: ")
 
+            try:
+                model = create_model(model_name)
+                break
+            except ValueError as exc:
+                print(f"{exc} Tentativo {attempt + 1}/3.")
+        else:
+            print("Numero massimo di tentativi raggiunto.")
+            return
+            
         # Selezione del file audio tramite interfaccia grafica
         print("In attesa della selezione del file audio...")
         ##print("-> chiamando file_dialog()")
