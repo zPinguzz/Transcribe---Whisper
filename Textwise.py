@@ -43,8 +43,7 @@ def main():
         sys.exit(1)
 
     start_time = time.time()
-    end_time = time.time()
-    elapsed_time = end_time - start_time
+    elapsed_time = time.time() - start_time
     testo_trascritto = transcriber.transcribe_file(percorso_file)
     print(f"Trascrizione completata in {elapsed_time:.2f} secondi.")
     print("il file trascritto è il seguente:")
