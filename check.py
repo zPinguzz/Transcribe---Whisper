@@ -32,3 +32,10 @@ def check_input(input_user, model):
     else:
         raise FileNotFoundError(f"The file {input_user} does not exist.")  
 
+def check_cuda():
+    """Controlla se CUDA è disponibile e stampa le informazioni sulla GPU."""
+    print(f"CUDA available: {torch.cuda.is_available()}")
+    if torch.cuda.is_available():
+        print(f"CUDA device: {torch.cuda.get_device_name(0)}")
+        print(f"CUDA version: {torch.version.cuda}")
+    
