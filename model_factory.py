@@ -1,14 +1,14 @@
-import whisper
+from interface_component import AudioTranscriber
+from whisper_transcribe import WhisperTranscriber
+from Interface_transcriber import TranscriberFactory 
 
-Model_Name =("tiny", "base", "small", "medium", "large")
+class WhisperTranscriberFactory(TranscriberFactory):
+    # factory effettiva che implementa tutto
+    available_models = ["tiny", "base", "small", "medium", "large"]
 
-def create_model(model_name):
-    """crea un modello Whisper basato sul nome specificato.
-    """
-    normalized_model_name = model_name.lower()
-    if normalized_model_name not in Model_Name:
-        avalable_models = ", ".join(Model_Name)
-        raise ValueError(f"Nome del modello non valido. Scegli tra: {avalable_models}")
-    model = whisper.load_model(normalized_model_name)
-    return model
-
+    def create_transcriber(self, model_name: str) -> AudioTranscriber:
+        normalizedName = model_name.lower()
+        if normalizedName not in self.available_models:
+            available = ", ".join(self.available_models)
+            raise ValueError(f"Modello non valido. Scegli tra {available}.")
+        return WhisperTranscriber(normalizedName)
