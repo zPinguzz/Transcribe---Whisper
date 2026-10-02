@@ -1,13 +1,7 @@
-from itertools import count
-import os
 import sys
 import time
-import shutil
-import traceback
 import tkinter as GUI
 from tkinter import filedialog, messagebox
-import torch
-import whisper
 from check import check_ffmpeg, check_gpu, check_input
 from model_factory import WhisperTranscriberFactory
 
