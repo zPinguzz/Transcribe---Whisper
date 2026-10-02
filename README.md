@@ -4,90 +4,97 @@ A beginner-friendly tool to transcribe audio files using OpenAI Whisper.
 
 ## 📋 About This Project
 
-This project is **currently in development** and was created by someone who's just starting to learn serious programming. The goal is simple: make Whisper transcription easy for everyone to use, even if you're not tech-savvy.
+This project is **currently in development** and was created by someone who's just starting to learn serious programming. The goal is simple: make Whisper transcription easy to use, even if you're not tech-savvy.
 
-I'm learning as I go, so the code might not be perfect, but it works! The idea is to create something that anyone can download and use without complicated setup.
-
-I’m also learning English, so if you notice some strange phrasing, that’s normal.
+I'm learning as I go, so the code might not be perfect, but it works! I'm also learning English, so if you notice some strange phrasing, that's normal.
 
 ## ✨ What It Does Right Now
 
-- 🖱️ **Easy file selection**: Just click to pick your audio file
-- 🇮🇹 **Italian transcription**: Set up for Italian language (easy to change)
-- ⚡ **Uses your GPU**: Automatically uses your graphics card if you have one
-- 💾 **Saves your text**: Saves the transcription as a .txt file
-- ⏱️ **Shows timing**: Tells you how long it took
-- 🚨 **Error logging**: Saves error details to help fix problems (in theory)
+- 🖱️ **Easy file selection**: pick your audio file with a file dialog
+- 🧠 **Choose your model**: tiny, base, small, medium or large (asked at startup, 3 attempts)
+- ⚡ **Uses your GPU**: Whisper automatically uses an NVIDIA GPU if available, otherwise the CPU
+- 🌍 **Automatic language detection**: Whisper detects the language by itself
+- 🖨️ **Prints the transcription** in the terminal
+- ✅ **Startup checks**: verifies that FFmpeg is installed and tells you if a GPU is detected
 
 ## 🔧 What You Need
 
 ### Software:
-- Python 3.7 or newer (I would recommend Py 3.10.9)
-- **FFmpeg**: This is required by Whisper to process audio. 
-  - *Windows*: You can install it via winget (`winget install ffmpeg`) or download it online.
+- Python 3.7 or newer (I recommend Python 3.10.9)
+- **FFmpeg**: required by Whisper to process audio
+  - *Windows*: `winget install ffmpeg` or download it online
   - *Mac*: `brew install ffmpeg`
   - *Linux*: `sudo apt install ffmpeg`
+- **Tkinter** (for the file dialog): included with Python on Windows/Mac. On Linux: `sudo apt install python3-tk`
 
-### To install the required Python packages:
+### Python packages:
 ```
 pip install torch
 pip install openai-whisper
-
 ```
 
-### 🖥️ Hardware requirement
-
-Your computer should have:
+### 🖥️ Hardware
 - **Graphics card**: NVIDIA GPU is great but not required
-- **RAM**: At least 8GB free
-- **Internet**: To download the AI model (first time only)
+- **RAM**: at least 8GB free
+- **Internet**: to download the AI model (first time only)
 
 ## 🚀 How to Use It
 
 1. **First time? Check your setup**:
-   ```
+```
    python check_cuda.py
-   ```
-   This helps you understand if everything is working and whether you can use GPU or CPU processing.
+```
+   It shows if CUDA is available and which GPU you have.
 
-2. **Run the transcription tool**:
-   ```
-   python transcribe.py
-   ```
+2. **Run the tool**:
+```
+   python Textwise.py
+```
 
-3. **Pick your audio file** when the window opens
+3. **Type the model name** when asked (tiny, base, small, medium, large)
+4. **Pick your audio file** when the window opens
+5. **Wait** while it transcribes (the first run is slower because it downloads the model)
+6. **Read the transcription** in the terminal
 
-4. **Wait** while it transcribes (first time takes longer, and it depends which model you are using)
+## 🧩 Project Structure
 
-5. **Save your transcription** where you want it
+| File | What it does |
+|------|--------------|
+| `Textwise.py` | Main file: asks for the model, opens the file picker, runs the transcription |
+| `check.py` | Checks for FFmpeg, GPU and input file |
+| `check_cuda.py` | Standalone script to test CUDA/GPU |
+| `interface_component.py` | Abstract class `AudioTranscriber` (the "contract" for any transcriber) |
+| `Interface_transcriber.py` | Abstract class `TranscriberFactory` |
+| `model_factory.py` | `WhisperTranscriberFactory`: validates the model name and creates the transcriber |
+| `whisper_transcribe.py` | `WhisperTranscriber`: loads the Whisper model and transcribes the file |
+
+The code uses the **Factory pattern**, so in the future other transcription engines can be added without rewriting the main file.
 
 ## 📽️ Audio Files That Work
 
-- MP3 files
-- WAV files  
-- M4A files
-- MP4 files (audio part)
+- MP3
+- WAV
+- M4A
+- MP4 (audio part)
 
 ## 🔄 Development Status
 
 ### ✅ Working Right Now:
-- [x] Basic file picker
+- [x] File picker
 - [x] Audio transcription
 - [x] GPU support (if available)
-- [x] Saves transcription to file
-- [x] Error handling (the code generate a log file)
+- [x] Choose different Whisper models
 - [x] Automatic FFmpeg check
-- [x] Automatic Whisper check
-- [x] Automatic Torch check
-- [x] Choose different AI models
+- [x] Modular structure (abstract classes + factory)
 
 ### WIP:
+- [ ] Save the transcription to a .txt file
+- [ ] Fix the elapsed time (currently not measured correctly)
+- [ ] Error log file
+- [ ] Choose the language manually
 - [ ] Better interface
-- [ ] Automatic FFmpeg install
-- [ ] Automatic torch install
-- [ ] Automatic whisper install
-- [ ] Different languages
-- [ ] WhatsApp file audio support
+- [ ] Automatic install of FFmpeg / torch / whisper
+- [ ] WhatsApp audio support
 
 ### Maybe for the future:
 - [ ] Video files
@@ -96,39 +103,32 @@ Your computer should have:
 - [ ] Better error handling
 - [ ] Process multiple files at once
 
-
 ## ⚠️ Things to Know
 
-- **First time**: Downloads the AI model. It takes a while and is around 1.5GB, be patient!
-- **GPU helps**: Much faster with a good graphics card
-- **File size**: Really long audio files need more RAM
-- **Audio quality**: Clear audio = better transcription
+- **First time**: downloads the AI model. Bigger models take more time and space (large is around 3GB), be patient!
+- **GPU helps**: much faster with a good graphics card
+- **File size**: really long audio files need more RAM
+- **Audio quality**: clear audio = better transcription
 
 ## 🐛 If Something Goes Wrong
 
-### Common issues:
-- **No GPU**: That's fine, it'll use your regular processor
-- **File not found**: Make sure you picked a real file
-- **Out of memory**: Try a shorter audio file
-
-### Error logs:
-When something breaks, check the `error_log.txt` file that gets created.
+- **FFmpeg error**: install FFmpeg and make sure it's in your system PATH
+- **No GPU**: that's fine, it will use your CPU (slower)
+- **Out of memory**: try a smaller model or a shorter audio file
+- **Invalid model**: choose one of tiny, base, small, medium, large
 
 ## 🤝 Help and Contributions
 
-Since I'm still learning, any help is welcome! If you know how to code and see something that could be better, please let me know.
-
-If you find bugs or have ideas, I'd love to hear them.
+Since I'm still learning, any help is welcome! If you find bugs or have ideas, I'd love to hear them.
 
 ## 📝 Learning Notes
 
-This is my first "real" programming project, so:
-- The code might not be the most elegant
-- I'm learning best practices as I go
+- This is my first "real" programming project
 - Comments in the code are often in Italian (sorry!)
 - I'm trying to make it work first, then make it pretty
-- Can be that when a I do a new commit the code could be instable or not functioning properly 
+- After a new commit the code could be unstable
 
 ---
 
 *Made by someone learning to code, trying to make AI transcription simple for everyone.*
+*This code was created with the assistance of AI.*
