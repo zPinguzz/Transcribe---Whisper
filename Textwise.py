@@ -1,21 +1,16 @@
 import sys
+import threading
 import time
-import tkinter as GUI
-from tkinter import filedialog, messagebox
+from file_dialog import FileDialog
 from check import check_ffmpeg, check_gpu, check_input
 from model_factory import WhisperTranscriberFactory
 
 
-def file_dialog():
-    """Apre una finestra di dialogo per permettere all'utente di selezionare un file audio."""
-    root = GUI.Tk()    
-    root.withdraw()
-    file_path = filedialog.askopenfilename(
-        title="Seleziona un file audio",
-        filetypes=(("Audio Files", "*.mp3;*.wav;*.m4a;*.mp4"), ("All Files", "*.*"))
-    )
-    root.destroy()  # Chiude la finestra dopo aver selezionato il file
-    return file_path
+def _update_transcription_timer(start_time, stop_event):
+    while not stop_event.wait(1):
+        elapsed_seconds = int(time.monotonic() - start_time)
+        minutes, seconds = divmod(elapsed_seconds, 60)
+        print(f"\rTranscription in progress - Time: {minutes:02d}:{seconds:02d}", end="", flush=True)
 
 
 def main():
@@ -37,14 +32,24 @@ def main():
                 print("Hai superato il numero massimo di tentativi. Uscita dal programma.")
                 sys.exit(1)
 
-    percorso_file = file_dialog()
+    with FileDialog() as dialog:
+        percorso_file = dialog.select_audio_file()
     if not percorso_file:
         print("Nessun file selezionato. Uscita dal programma.")
         sys.exit(1)
 
-    start_time = time.time()
-    elapsed_time = time.time() - start_time
-    testo_trascritto = transcriber.transcribe_file(percorso_file)
+    stop_event = threading.Event()
+    start_time = time.monotonic()
+    print("Transcription in progress - Time: 00:00", end="", flush=True)
+    timer_thread = threading.Thread(target=_update_transcription_timer, args=(start_time, stop_event))
+    timer_thread.start()
+    try:
+        testo_trascritto = transcriber.transcribe_file(percorso_file)
+    finally:
+        elapsed_time = time.monotonic() - start_time
+        stop_event.set()
+        timer_thread.join()
+        print(flush=True)
     print(f"Trascrizione completata in {elapsed_time:.2f} secondi.")
     print("il file trascritto è il seguente:")
     print(testo_trascritto)
